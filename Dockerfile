@@ -2,6 +2,12 @@
 FROM registry.access.redhat.com/ubi8-minimal:8.9-1029
 USER 0
 
+RUN get-sources.sh
+
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1029
+USER 0
+
 # The $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
 # are copied into $HOME when the container starts up. This allows defining a default
 # configuration that can still be overridden if necessary (the copy does not overwrite
