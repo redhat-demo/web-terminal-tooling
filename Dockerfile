@@ -68,10 +68,10 @@ COPY etc/entrypoint.sh /entrypoint.sh
 
 # Change permissions to let root group access necessary files
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "${WRAPPER_BINARIES}" "${DOWNLOADED_BINARIES}" "/etc/passwd" "/etc/group"; do \
-    echo "Changing permissions on ${f}" && echo "123" && chgrp -R 0 ${f} && \
-    echo 111 && \
+    echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
     done && \
+    echo "Get tooling version lists" && \
     /tmp/get-tooling-versions.sh > /tmp/installed_tools.txt && \
     chmod g+rw /tmp/installed_tools.txt && \
     echo "Installed tools:" && \
@@ -82,7 +82,8 @@ USER 1001
 ENV SHELL=/bin/bash
 ENV PATH="${WRAPPER_BINARIES}:${DOWNLOADED_BINARIES}:${PATH}"
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+# ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 ENV SUMMARY="Web Terminal - Tooling container" \
     DESCRIPTION="Web Terminal - Tooling container" \
