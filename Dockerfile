@@ -1,8 +1,12 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1029
+FROM registry.access.redhat.com/ubi8 as builder
 USER 0
 
-RUN get-sources.sh
+WORKDIR /tmp
+COPY get-sources.sh rh-manifest.txt tooling_versions.env .
+
+RUN dnf -y install tar gzip jq wget xz
+RUN ./get-sources.sh
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry.access.redhat.com/ubi8-minimal:8.9-1029
@@ -31,7 +35,9 @@ RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES &
     curl tar git procps jq && \
     microdnf -y clean all
 
-ADD container-root-x86_64.tgz /
+COPY --from=builder /tmp/container-root-x86_64.tgz .
+RUN tar -xvf container-root-x86_64.tgz -C / && rm container-root-x86_64.tgz
+
 # Propagate tools to path and install bash autocompletion
 RUN \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
@@ -62,7 +68,8 @@ COPY etc/entrypoint.sh /entrypoint.sh
 
 # Change permissions to let root group access necessary files
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "${WRAPPER_BINARIES}" "${DOWNLOADED_BINARIES}" "/etc/passwd" "/etc/group"; do \
-    echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+    echo "Changing permissions on ${f}" && echo "123" && chgrp -R 0 ${f} && \
+    echo 111 && \
     chmod -R g+rwX ${f}; \
     done && \
     /tmp/get-tooling-versions.sh > /tmp/installed_tools.txt && \

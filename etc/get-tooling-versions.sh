@@ -52,7 +52,7 @@ if command -v subctl &>/dev/null; then
 fi
 
 if command -v odo &>/dev/null; then
-  ODO_VER=$(odo version --client | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  ODO_VER=$(echo yes |odo version --client | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
   append_ver "odo      |${ODO_VER#v}       |Red Hat OpenShift Developer CLI"
 fi
 
